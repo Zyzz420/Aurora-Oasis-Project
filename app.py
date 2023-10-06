@@ -27,19 +27,19 @@ def exists(item, playlist):
             return True
     return False
 
-@app.route('/profiles')
+@app.route('/Profiles')
 def profiles():
     users = User.query.all()
-    return render_template('users.html', users=users)
+    return render_template('Profiles', users=users)
 
-@app.route('/profile/<int:user_id>')
+@app.route('/Profile')
 def profile(user_id):
     user = User.query.filter_by(id=user_id).first_or_404()
     songs = Song.query.all()
     playlist = Playlist.query.get(user.playlist_id)
-    return render_template('profile.html', user=user, songs=songs, playlist=playlist)
+    return render_template('Profiles', user=user, songs=songs, playlist=playlist)
 
-@app.route('/add_item/<int:user_id>/<int:song_id>/<int:playlist_id>')
+@app.route('/ongs')
 def add_item(user_id, song_id, playlist_id):
     user = User.query.filter_by(id=user_id).first_or_404()
     playlist = Playlist.query.filter_by(id=playlist_id).first()
@@ -53,22 +53,22 @@ def add_item(user_id, song_id, playlist_id):
         flash('Song added to playlist')
     else:
         flash('Song already exists in playlist')
-    return redirect(url_for('profile', user_id=user.id))
+    return redirect(url_for('Profile', user_id=user.id))
 
-@app.route('/remove_item/<int:user_id>/<int:item_id>')
+@app.route('/Profile')
 def remove_item(user_id, item_id):
     delete_item = Item.query.get(item_id)
     db.session.delete(delete_item)
     db.session.commit()
     flash('Song removed from playlist')
-    return redirect(url_for('profile', user_id=user_id))
+    return redirect(url_for('Profile', user_id=user_id))
 
 @app.route('/dashboard')
 def dashboard():
     songs = Song.query.all()
-    return render_template('dashboard.html', songs=songs)
+    return render_template('dashboard.jsx', songs=songs)
 
-@app.route('/add_song', methods=['GET', 'POST'])
+@app.route('/Songs', methods=['GET', 'POST'])
 def add_song():
     form = SongForm()
     if form.validate_on_submit():
@@ -77,9 +77,9 @@ def add_song():
         db.session.commit()
         flash('Song added to library')
         return redirect(url_for('dashboard'))
-    return render_template('add_song.html', form=form)
+    return render_template('dashboard', form=form)
 
-@app.route('/delete_song/<int:song_id>')
+@app.route('/Songs')
 def delete_song(song_id):
     delete_song = Song.query.get(song_id)
     db.session.delete(delete_song)
