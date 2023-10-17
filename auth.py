@@ -38,7 +38,7 @@ class User(db.Model):
 def load_user(user_id):
     return User.query.get(user_id)
 
-@app.route('/register', methods=["GET", "POST"])
+@app.route('/login', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         user = User(
@@ -50,7 +50,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         return redirect(url_for("login"))
-    return render_template("sign_up.html")
+    return render_template("home.jsx")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -59,7 +59,7 @@ def login():
         if user and check_password_hash(user.password, request.form.get("password")):
             access_token = create_access_token(identity=user.public_id, expires_delta=timedelta(minutes=30))
             return make_response(jsonify({'token': access_token}), 201)
-    return render_template("login.html")
+    return render_template("home.jsx")
 
 @app.route("/logout")
 @jwt_required
@@ -71,7 +71,7 @@ def logout():
 def home():
     current_user_identity = get_jwt_identity()
     current_user = User.query.filter_by(public_id=current_user_identity).first()
-    return render_template("home.html", current_user=current_user)
+    return render_template("home.jsx", current_user=current_user)
 
 # OAuth Section
 app.config['SERVER_NAME'] = 'localhost:5000'
@@ -79,7 +79,7 @@ oauth = OAuth(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.jsx')
 
 @app.route('/google/')
 def google():
@@ -102,12 +102,10 @@ def google():
 def google_auth():
     token = oauth.google.authorize_access_token()
     user = oauth.google.parse_id_token(token)
-    # Access user profile information
     email = user['email']
     name = user['name']
     picture = user['picture']
-    # You can use the profile information as needed
-    # For example, you can store it in the database or use it to customize the user's experience
+
     print("Google User", user)
     return redirect('/')
 
@@ -134,12 +132,10 @@ def twitter():
 def twitter_auth():
     token = oauth.twitter.authorize_access_tokenwith_oauthlib_redirect()
     user= oauth.twitter.get('account/verify_credentials.json').json()
-    # Access user profile information
     email = user['email']
     name = user['name']
     picture = user['profile_image_url']
-    # You can use the profile information as needed
-    # For example, you can store it in the database or use it to customize the user's experience
+
     print("Twitter User", user)
     return redirect('/')
 def init_db():
